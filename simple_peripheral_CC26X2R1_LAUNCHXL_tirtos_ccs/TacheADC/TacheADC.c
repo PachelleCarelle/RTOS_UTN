@@ -21,6 +21,8 @@
 #include <ti/drivers/GPIO.h>
 #include <ti/drivers/ADC.h>
 #include <TacheLCD/TacheLCD.h>
+#include <Profiles/accelerometre.h>
+#include "simple_peripheral.h"
 
 #define ADC_SAMPLE_COUNT (10)
 
@@ -80,6 +82,9 @@ static void TacheADC_taskFxn(UArg a0, UArg a1)
 
         afficherDonnees(gx, gy, gz);
         //AFFICHER
+        SaveDataToSend(gx, gy, gz);
+        Carte_enqueueMsg(PZ_MSG_ACCELEROMETRE);
+
     }
 }
 

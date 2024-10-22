@@ -48,6 +48,8 @@
 #ifndef SIMPLEPERIPHERAL_H
 #define SIMPLEPERIPHERAL_H
 
+
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -61,11 +63,11 @@ extern "C"
 /*********************************************************************
 *  EXTERNAL VARIABLES
 */
-
+void Carte_enqueueMsg(uint8_t event);
 /*********************************************************************
  * CONSTANTS
  */
-
+#define PZ_MSG_ACCELEROMETRE    10
 /*********************************************************************
  * MACROS
  */

@@ -86,6 +86,9 @@ CONST uint8_t accelerometre_AccelerometreMesuresUUID[ATT_UUID_SIZE] =
 /*********************************************************************
  * LOCAL VARIABLES
  */
+uint16 AXF;
+uint16 AYF;
+uint16 AZF;
 
 static accelerometreCBs_t *pAppCBs = NULL;
 
@@ -100,7 +103,7 @@ static CONST gattAttrType_t accelerometreDecl = { ATT_BT_UUID_SIZE, accelerometr
 static uint8_t accelerometre_AccelerometreMesuresProps = GATT_PROP_READ | GATT_PROP_WRITE | GATT_PROP_NOTIFY;
 
 // Characteristic "AccelerometreMesures" Value variable
-static uint8_t accelerometre_AccelerometreMesuresVal[ACCELEROMETRE_ACCELEROMETREMESURES_LEN] = {0};
+static uint8_t Accelerometre_AccelerometreMesuresVal[ACCELEROMETRE_ACCELEROMETREMESURES_LEN] = {0};
 
 // Characteristic "AccelerometreMesures" CCCD
 static gattCharCfg_t *accelerometre_AccelerometreMesuresConfig;
@@ -130,7 +133,7 @@ static gattAttribute_t accelerometreAttrTbl[] =
         { ATT_UUID_SIZE, accelerometre_AccelerometreMesuresUUID },
         GATT_PERMIT_READ | GATT_PERMIT_WRITE,
         0,
-        accelerometre_AccelerometreMesuresVal
+        Accelerometre_AccelerometreMesuresVal
       },
       // AccelerometreMesures CCCD
       {
@@ -231,10 +234,10 @@ bStatus_t Accelerometre_SetParameter( uint8 param, uint8 len, void *value )
     case ACCELEROMETRE_ACCELEROMETREMESURES:
       if ( len == ACCELEROMETRE_ACCELEROMETREMESURES_LEN )
       {
-        memcpy(accelerometre_AccelerometreMesuresVal, value, len);
+        memcpy(Accelerometre_AccelerometreMesuresVal, value, len);
 
         // Try to send notification.
-        GATTServApp_ProcessCharCfg( accelerometre_AccelerometreMesuresConfig, (uint8_t *)&accelerometre_AccelerometreMesuresVal, FALSE,
+        GATTServApp_ProcessCharCfg( accelerometre_AccelerometreMesuresConfig, (uint8_t *)&Accelerometre_AccelerometreMesuresVal, FALSE,
                                     accelerometreAttrTbl, GATT_NUM_ATTRS( accelerometreAttrTbl ),
                                     INVALID_TASK_ID,  accelerometre_ReadAttrCB);
       }
@@ -267,7 +270,7 @@ bStatus_t Accelerometre_GetParameter( uint8 param, void *value )
   switch ( param )
   {
     case ACCELEROMETRE_ACCELEROMETREMESURES:
-      memcpy(value, accelerometre_AccelerometreMesuresVal, ACCELEROMETRE_ACCELEROMETREMESURES_LEN);
+      memcpy(value, Accelerometre_AccelerometreMesuresVal, ACCELEROMETRE_ACCELEROMETREMESURES_LEN);
       break;
 
     default:
@@ -383,4 +386,37 @@ static bStatus_t accelerometre_WriteAttrCB( uint16 connHandle, gattAttribute_t *
       pAppCBs->pfnChangeCb( paramID ); // Call app function from stack task context.
 
   return status;
+}
+uint8_t in=0;
+void SendAccelerometreMesure(void){
+    uint8_t indexArr=0;
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = 0xFE;
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = in++;
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = 0x70;
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = 0x00;
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = 0x0E;
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = 0x00;
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = 0x00;
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = (uint8_t)(AXF >>8);
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = (uint8_t)(AXF);
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = (uint8_t)(AYF >>8);
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = (uint8_t)(AYF);
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = (uint8_t)(AZF >>8);
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = (uint8_t)(AZF);
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = 0x00;
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = 0x00;
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = 0x00;
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = 0x00;
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = 0x00;
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = 0x00;
+    Accelerometre_AccelerometreMesuresVal[indexArr++] = 0x00;
+    Accelerometre_SetParameter(ACCELEROMETRE_ACCELEROMETREMESURES,
+                               ACCELEROMETRE_ACCELEROMETREMESURES_LEN,
+                               Accelerometre_AccelerometreMesuresVal);
+
+}
+void SaveDataToSend(float AxADC, float AyADC, float AzADC){
+    AXF = (uint16)(AxADC*1000);
+    AYF = (uint16)(AyADC*1000);
+    AZF = (uint16)(AzADC*1000);
 }

@@ -40,6 +40,7 @@
 #ifndef _ACCELEROMETRE_H_
 #define _ACCELEROMETRE_H_
 
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -49,9 +50,14 @@ extern "C"
  * INCLUDES
  */
 
+#include "bcomdef.h"
+#include "_hal_types.h"
 /*********************************************************************
  * CONSTANTS
  */
+
+void SendAccelerometreMesure(void);
+void SaveDataToSend(float AxADC, float AyADC, float AzADC);
 
 /*********************************************************************
 * CONSTANTS
