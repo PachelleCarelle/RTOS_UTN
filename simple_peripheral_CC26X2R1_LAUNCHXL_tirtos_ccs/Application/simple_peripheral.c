@@ -85,6 +85,7 @@
 #include "simple_peripheral_menu.h"
 #include "simple_peripheral.h"
 #include "Profiles/Accelerometre.h"
+#include "Profiles/Joystick.h"
 #include "ti_ble_config.h"
 
 #ifdef PTM_MODE
@@ -172,6 +173,9 @@ enum
   AUTOCONNECT_GROUP_B = 2               // Group B
 };
 
+
+//accelerometre
+
 uint8_t BufGRX[20]={0};// Struct for messages about characteristic data
 typedef struct{
     uint16_t svcUUID; // UUID of the service
@@ -187,8 +191,7 @@ static void user_Accelerometre_ValueChangeCB(
         uint8_t paramID,
         uint16_t len,
         uint8_t *pValue); // Callback from the service.
-static void user_Accelerometre_ValueChangeHandler(
-        pzCharacteristicData_t *pCharData);
+void user_Accelerometre_ValueChangeHandler(pzCharacteristicData_t *pData);
 
 // Local handler//called from the Task context of this task.
 // Service callback function implementation// Accelerometre callback handler.
@@ -200,6 +203,35 @@ static accelerometreCBs_t user_AccelerometreCBs =
 //Characteristic value change callback handler
 //.pfnCfgChangeCb = NULL, // No CCCD change handler implemented
 };
+
+//Joytick
+
+uint8_t BufGRX2[20]={0};// Struct for messages about characteristic data
+
+
+// Declaration of service callback handlers
+static void user_Joystick_ValueChangeCB(
+        uint16_t connHandle,
+        uint8_t paramID,
+        uint16_t len,
+        uint8_t *pValue); // Callback from the service.
+static void user_Joystick_ValueChangeHandler(
+        pzCharacteristicData_t *pCharData);
+
+// Local handler//called from the Task context of this task.
+// Service callback function implementation// Accelerometre callback handler.
+//The type AccelerometreCBs_t is defined in Accelerometre.h
+
+static JoystickCBs_t user_JoystickCBs =
+{.pfnChangeCb = user_Joystick_ValueChangeCB,
+
+//Characteristic value change callback handler
+//.pfnCfgChangeCb = NULL, // No CCCD change handler implemented
+};
+
+
+
+
 // App event passed from stack modules. This type is defined by the application
 // since it can queue events to itself however it wants.
 typedef struct
@@ -582,6 +614,18 @@ static void SimplePeripheral_init(void)
   ACCELEROMETRE_ACCELEROMETREMESURES,
   ACCELEROMETRE_ACCELEROMETREMESURES_LEN,
   Accelerometre_AccelerometreMesures_initVal);
+
+  Joystick_AddService();
+  Joystick_RegisterAppCBs(&user_JoystickCBs);
+
+  // Initalization of characteristics in
+  //Joystick that are readable.
+  uint8_t Joystick_JoystickMesures_initVal[
+  JOYSTICK_JOYSTICKMESURES_LEN]={ 0 };
+  Joystick_SetParameter(
+  JOYSTICK_JOYSTICKMESURES,
+  JOYSTICK_JOYSTICKMESURES_LEN,
+  Joystick_JoystickMesures_initVal);
 
 
   // Initialize GATT attributes
@@ -1013,6 +1057,10 @@ static void SimplePeripheral_processAppMsg(spEvt_t *pMsg)
 
     case PZ_MSG_ACCELEROMETRE:
         SendAccelerometreMesure();
+        break;
+
+    case PZ_MSG_JOYSTICK:
+        SendJoystickMesure();
         break;
 
     default:
@@ -2599,8 +2647,7 @@ static void SimplePeripheral_menuSwitchCb(tbmMenuObj_t* pMenuObjCurr,
   }
 }
 
-void user_Accelerometre_ValueChangeHandler(
-pzCharacteristicData_t *pData)
+void user_Accelerometre_ValueChangeHandler(pzCharacteristicData_t *pData)
 {
     switch (pData->paramID)
     {
@@ -2642,5 +2689,27 @@ void Carte_enqueueMsg(uint8_t event){
                         syncEvent, (uint8_t *)pMsg);
     }
 }
+
+
+
+static void user_Joystick_ValueChangeCB(uint16_t connHandle,
+                                             uint8_t paramID,
+                                             uint16_t len,uint8_t *pValue)
+{
+    pzCharacteristicData_t *pValChange =
+    ICall_malloc(sizeof(pzCharacteristicData_t) + len);
+
+    if(pValChange != NULL)
+    {
+        pValChange->svcUUID = PZ_MSG_JOYSTICK;
+        pValChange->paramID = paramID;
+        memcpy(pValChange->data, pValue, len);
+        pValChange->dataLen = len;
+
+
+        SimplePeripheral_enqueueMsg(SP_STATE_CHANGE_EVT,pValChange);
+    }
+}
+
 /*********************************************************************
 *********************************************************************/

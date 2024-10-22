@@ -30,6 +30,7 @@ Semaphore_Handle semTacheLCDHandle;
 #include <TacheLCD/LCD_LAUNCHPAD/LCD_LAUNCHPAD.h>
 
 float Ax,Ay,Az;
+float Jx,Jy;
 
 void LCD_Init(void)
 {
@@ -71,10 +72,12 @@ void floatToString1d(char *ax, float AX)
 }
 
 
-void afficherDonnees(float accx, float accy, float accz){
+void afficherDonnees(float accx, float accy, float accz, float joyx, float joyy){
     Ax = accx;
     Ay = accy;
     Az = accz;
+    Jx = joyx;
+    Jy = joyy;
     Semaphore_post(semTacheLCDHandle);
 
 }
@@ -107,13 +110,17 @@ static void TacheLCD_taskFxn(UArg a0, UArg a1)
     char DataLCD[] = "AX:";
     char DataLCD2[] = "AY:";
     char DataLCD3[] = "AZ:";
+    char DataLCD4[] = "JX:";
+    char DataLCD5[] = "JY:";
 
     //Fill display with a given RGB value
 
     Fill_LCD(0xFF, 0x00, 0x00); //RGB
     OLEDText22(8, 8, DataLCD, SIZE_TWO, 0xFF, 0xFF, 0x00);
     OLEDText22(8, 33, DataLCD2, SIZE_TWO, 0xFF, 0xFF, 0x00);
-    OLEDText22(8, 58, DataLCD3, SIZE_TWO, 0xFF, 0xFF, 0x60);
+    OLEDText22(8, 58, DataLCD3, SIZE_TWO, 0xFF, 0xFF, 0x00);
+    OLEDText22(8, 83, DataLCD4, SIZE_TWO, 0xFF, 0xFF, 0x00);
+    OLEDText22(8, 105, DataLCD5, SIZE_TWO, 0xFF, 0xFF, 0x00);
 
 
 
@@ -124,10 +131,14 @@ static void TacheLCD_taskFxn(UArg a0, UArg a1)
         char axStr[10]=" ";
         char ayStr[10]=" ";
         char azStr[10]=" ";
+        char jxStr[10]=" ";
+        char jyStr[10]=" ";
         // Convertir les valeurs flottantes en chaînes de caractères
         floatToString1d(axStr, Ax);
         floatToString1d(ayStr, Ay);
         floatToString1d(azStr, Az);
+        floatToString1d(jxStr, Jx);
+        floatToString1d(jyStr, Jy);
 
 
         // Fill_Rectangle(x_position, y_position, width, height, background_color);
@@ -136,6 +147,8 @@ static void TacheLCD_taskFxn(UArg a0, UArg a1)
         OLEDText22(50, 8, axStr, SIZE_TWO, 0xFF, 0xFF, 0x00);
         OLEDText22(50, 33, ayStr, SIZE_TWO, 0xFF, 0xFF, 0x00);
         OLEDText22(50, 58, azStr, SIZE_TWO, 0xFF, 0xFF, 0x00);
+        OLEDText22(50, 83, jxStr, SIZE_TWO, 0xFF, 0xFF, 0x00);
+        OLEDText22(50, 105, jyStr, SIZE_TWO, 0xFF, 0xFF, 0x00);
     }
 }
 

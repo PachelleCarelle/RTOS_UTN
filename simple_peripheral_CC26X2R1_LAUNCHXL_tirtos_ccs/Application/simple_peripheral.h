@@ -68,6 +68,9 @@ void Carte_enqueueMsg(uint8_t event);
  * CONSTANTS
  */
 #define PZ_MSG_ACCELEROMETRE    10
+
+#define PZ_MSG_JOYSTICK   11
+
 /*********************************************************************
  * MACROS
  */

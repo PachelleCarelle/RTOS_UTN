@@ -17,7 +17,7 @@ void floatToString(char* ax, float AX);
 void floatToString1d(char* ax, float AX);
 void intToString(char* ax, float AX);
 void TacheLCD_CreateTask(void);
-void afficherDonnees(float accx, float accy, float accz);
+void afficherDonnees(float accx, float accy, float accz, float joyx, float joyy);
 
 
 #endif /* TACHELCD_TACHELCD_H_ */

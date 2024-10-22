@@ -17,6 +17,8 @@ const ADC         = scripting.addModule("/ti/drivers/ADC", {}, false);
 const ADC1        = ADC.addInstance();
 const ADC2        = ADC.addInstance();
 const ADC3        = ADC.addInstance();
+const ADC4        = ADC.addInstance();
+const ADC5        = ADC.addInstance();
 const AESCCM      = scripting.addModule("/ti/drivers/AESCCM");
 const AESCCM1     = AESCCM.addInstance();
 const AESCTRDRBG  = scripting.addModule("/ti/drivers/AESCTRDRBG");
@@ -110,6 +112,14 @@ ADC3.adc.$assign          = "ADC0";
 ADC3.adc.adcPin.$assign   = "boosterpack.25";
 ADC3.adcPinInstance.$name = "CONFIG_PIN_2";
 
+ADC4.$name                = "CONFIG_ADC_3";
+ADC4.adc.adcPin.$assign   = "boosterpack.26";
+ADC4.adcPinInstance.$name = "CONFIG_PIN_8";
+
+ADC5.$name                = "CONFIG_ADC_4";
+ADC5.adc.adcPin.$assign   = "boosterpack.2";
+ADC5.adcPinInstance.$name = "CONFIG_PIN_9";
+
 AESCCM1.$name = "CONFIG_AESCCM0";
 
 AESCTRDRBG1.$name              = "CONFIG_AESCTRDRBG_0";
@@ -160,6 +170,8 @@ Display1.uart.uart.txPin.$suggestSolution = "boosterpack.4";
 Display1.uart.uart.rxPin.$suggestSolution = "boosterpack.3";
 ADC1.adc.$suggestSolution                 = "ADC0";
 ADC2.adc.$suggestSolution                 = "ADC0";
+ADC4.adc.$suggestSolution                 = "ADC0";
+ADC5.adc.$suggestSolution                 = "ADC0";
 GPIO1.gpioPin.$suggestSolution            = "boosterpack.29";
 GPIO2.gpioPin.$suggestSolution            = "boosterpack.30";
 SPI1.spi.$suggestSolution                 = "SSI0";

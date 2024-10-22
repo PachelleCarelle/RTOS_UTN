@@ -22,6 +22,8 @@
 #include <ti/drivers/ADC.h>
 #include <TacheLCD/TacheLCD.h>
 #include <Profiles/accelerometre.h>
+#include <Profiles/Joystick.h>
+
 #include "simple_peripheral.h"
 
 #define ADC_SAMPLE_COUNT (10)
@@ -55,6 +57,7 @@ ADC_Params params;
 int_fast16_t res;
 
 float gx, gy, gz;  // Variables pour stocker les moyennes des axes
+float jx, jy;
 float ADC_g[ADC_SAMPLE_COUNT];
 
 void TacheADC_init(void){
@@ -63,7 +66,7 @@ ADC_init();
 ADC_Params_init(&params);
 Clock_Params clockParams;
 Clock_Params_init(&clockParams);
-clockParams.period = 100 * (1000/Clock_tickPeriod),//100ms
+clockParams.period = 20 * (1000/Clock_tickPeriod),//20ms
 Clock_construct(&myClock, myClockSwiFxn,0, // Initial delay before first timeout
                 &clockParams);
 Clock_start(Clock_handle(&myClock));//Timer start
@@ -71,19 +74,36 @@ Clock_start(Clock_handle(&myClock));//Timer start
 
 static void TacheADC_taskFxn(UArg a0, UArg a1)
 {
+    int count = 0;
+
     TacheADC_init();
+
     for(;;)
     {
         Semaphore_pend(semTacheADCHandle, BIOS_WAIT_FOREVER);
         // Récupérer les moyennes des axes
-        gx = Sampling(CONFIG_ADC_0);  // Axe X
-        gy = Sampling(CONFIG_ADC_1);  // Axe Y
-        gz = Sampling(CONFIG_ADC_2);  // Axe Z
+        if (count >= 5)
+        {
 
-        afficherDonnees(gx, gy, gz);
+            count = 0;
+            gx = Sampling(CONFIG_ADC_0);  // Axe X
+            gy = Sampling(CONFIG_ADC_1);  // Axe Y
+            gz = Sampling(CONFIG_ADC_2);  // Axe Z
+        }
+        count ++;
+        jx= Sampling(CONFIG_ADC_3); // Axe X Joystick
+        jy= Sampling(CONFIG_ADC_4); // Axe Y Joystick
+
+
+        afficherDonnees(gx, gy, gz, jx, jy);
+
         //AFFICHER
         SaveDataToSend(gx, gy, gz);
+        SaveDataToSendj(jx, jy);
+
+
         Carte_enqueueMsg(PZ_MSG_ACCELEROMETRE);
+        Carte_enqueueMsg(PZ_MSG_JOYSTICK);
 
     }
 }
